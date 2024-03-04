@@ -1,13 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import whisper
+import torch
 
 
 
 app = Flask(__name__)
 CORS(app) # Active CORS pour toutes les origines
 print("Chargement du modèle...")
-model = whisper.load_model("medium.en") # ou "small", "medium", "large" selon les ressources disponibles
+# Vérifie si CUDA est disponible et configure PyTorch pour utiliser le GPU
+if torch.cuda.is_available():
+    print("CUDA est disponible. Modèle en cours de configuration pour utiliser le GPU.")
+    device = torch.device("cuda")
+else:
+    print("CUDA n'est pas disponible. Modèle en cours de configuration pour utiliser le CPU.")
+    device = torch.device("cpu")
+
+model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
 print("Modèle chargé")
 
 @app.route('/transcribe', methods=['POST'])
