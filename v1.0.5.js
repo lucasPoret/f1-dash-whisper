@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         F1 dash board
 // @namespace    http://tampermonkey.net/
-// @version      1.0.6
+// @version      1.0.5
 // @description  try to take over the world!
 // @author       You
 // @match        https://f1-dash.vercel.app/
@@ -29,12 +29,12 @@
       //add the src of the audio tag to the list last_five
       last.forEach(function(element){
         last_five.push(element.src);
-      }); 
+      });
     }
 
     function addNewRadio(list,element,size){
         if (list.length === size){
-          //récupère le premier élément de la liste last_five et le supprime de la liste list 
+          //récupère le premier élément de la liste last_five et le supprime de la liste list
           var last = last_five.shift();
           //find where the key in the list is equal to last and remove it
           list.splice(list.findIndex(x => x.audioUrl === last),1);
@@ -55,24 +55,13 @@
     function updateRadioList(list,audioTags){
       // Convert audioTags collection into an array
       var audioArray = Array.from(audioTags);
-      
+
       //verifie si pour chqaue element de audioTags.src si il est dans la liste list et si oui affiche la transcriptionhtml
       audioArray.forEach(function(element){
         list.forEach(function(element2){
-          if (element.src === element2.audioUrl && !element.classList.contains("whispered")){ 
+          if (element.src === element2.audioUrl && !element.classList.contains("whispered")){
             addTranscriptionToHtml(element,element2.transcription);
           }
-          else if (element.src === element2.audioUrl && element.classList.contains("whispered")){ //if whisperred erase the existing <p> tag
-            element.classList.remove("whispered");
-            var pTag = element.parentElement.parentElement.querySelector("p");
-            pTag.remove();
-            addTranscriptionToHtml(element,element2.transcription);
-          }
-          //if an element of list does not exist in audioTags.src then remove it from the list
-          else if (!audioArray.some(x => x.src === element2.audioUrl)){ //some returns true if at least one element of the array matches the condition  
-            list.splice(list.findIndex(x => x.audioUrl === element2.audioUrl),1);
-          }
-
         });
       });
     }
@@ -90,7 +79,7 @@
         //console.log("azertyuiopqsdfghjklmwxcvbn,azertyuiopmlkgfdsqwxcvbn,");
         var audioTags = document.getElementsByTagName("audio");  //get all the audio tags
         updateLastFive(audioTags);
-        
+
         if (audioTags.length === 0) { //if there is no audio tags, stop the function
             isRunning = false;
             console.log("No audio tags found");
@@ -113,14 +102,14 @@
                 updateRadioList(list,audioTags);
                 console.log("list",list);
             }
-            
+
 
             //check if the radio is not already in the list then process it
             if (!audioTag.classList.contains("whispered")) {
                 console.log(audioTag,i);
                 await transcribe(audioTag);
-                
-                
+
+
             }
         }
         isRunning = false;
@@ -138,11 +127,11 @@ async function transcribe(audio) {  //transcribe the audio
         },
         body: JSON.stringify({ audio: audioUrl }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
 
       console.log('Transcription:', data.transcription);
@@ -153,7 +142,7 @@ async function transcribe(audio) {  //transcribe the audio
       //dict with key=source of the audio and value=transcription
       addNewRadio(list,{audioUrl:audio.src,transcription:data.transcription},146);
 
- 
+
       return data.transcription;
     } catch (error) {
       console.error('Erreur lors de la transcription:', error);
