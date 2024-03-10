@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         F1 dash board
 // @namespace    http://tampermonkey.net/
-// @version      1.0.5
+// @version      1.1.0
 // @description  try to take over the world!
 // @author       You
 // @match        https://f1-dash.vercel.app/

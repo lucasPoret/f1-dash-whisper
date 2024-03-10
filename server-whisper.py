@@ -19,6 +19,10 @@ else:
 model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
 print("Modèle chargé")
 
+
+transcription_list = []
+
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
     # Vérifie si le fichier fait partie de la requête
@@ -26,12 +30,17 @@ def transcribe_audio():
     if not audio_url:
         return "URL de l'audio manquant", 400
     print(f"Transcription de l'audio à l'URL: {audio_url}")
+    if audio_url in [transcription["audioUrl"] for transcription in transcription_list]:
+        return jsonify(transcription=[transcription["transcription"] for transcription in transcription_list if transcription["audioUrl"] == audio_url][0])
+    
     try:
         # Transcrit le fichier audio    
         result = model.transcribe(audio_url, language="en")
         transcription = result["text"]
+        transcription_list.append({"audioUrl": audio_url, "transcription": transcription})
+
     except:
-        transcription = "La transcription n'a pas été possible, le contenu audio n'a pas pu être compris."
+        transcription = "trasncription failed"
 
     print(f"Transcription: {transcription}")
     return jsonify(transcription=transcription)

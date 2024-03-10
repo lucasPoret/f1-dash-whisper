@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         F1 dash board
 // @namespace    http://tampermonkey.net/
-// @version      1.0.6
+// @version      1.1.0
 // @description  try to take over the world!
 // @author       You
 // @match        https://f1-dash.vercel.app/
@@ -12,8 +12,8 @@
 (function() {
     'use strict';
     var isRunning = false;
-    var last_five=[];
-    var list=[];
+    // var last_five=[];
+    // var list=[];
 
     setTimeout(function() {
         var elem = document.getElementsByTagName("footer");
@@ -21,26 +21,26 @@
         elem[0].remove();
     }, 500);
 
-    function updateLastFive(audioTags){
-      // Convert audioTags collection into an array
-      var audioArray = Array.from(audioTags);
-      //take five last items of the list
-      var last = audioArray.slice(-5);
-      //add the src of the audio tag to the list last_five
-      last.forEach(function(element){
-        last_five.push(element.src);
-      }); 
-    }
+    // function updateLastFive(audioTags){
+    //   // Convert audioTags collection into an array
+    //   var audioArray = Array.from(audioTags);
+    //   //take five last items of the list
+    //   var last = audioArray.slice(-5);
+    //   //add the src of the audio tag to the list last_five
+    //   last.forEach(function(element){
+    //     last_five.push(element.src);
+    //   }); 
+    // }
 
-    function addNewRadio(list,element,size){
-        if (list.length === size){
-          //récupère le premier élément de la liste last_five et le supprime de la liste list 
-          var last = last_five.shift();
-          //find where the key in the list is equal to last and remove it
-          list.splice(list.findIndex(x => x.audioUrl === last),1);
-        }
-        list.push(element);
-    }
+    // function addNewRadio(list,element,size){
+    //     if (list.length === size){
+    //       //récupère le premier élément de la liste last_five et le supprime de la liste list 
+    //       var last = last_five.shift();
+    //       //find where the key in the list is equal to last and remove it
+    //       list.splice(list.findIndex(x => x.audioUrl === last),1);
+    //     }
+    //     list.push(element);
+    // }
 
     function addTranscriptionToHtml(audio,Transcription){
       audio.classList.add("whispered");
@@ -52,30 +52,30 @@
       pTag.style.color = pTag.parentElement.querySelector("div p").style.color;
     }
 
-    function updateRadioList(list,audioTags){
-      // Convert audioTags collection into an array
-      var audioArray = Array.from(audioTags);
+    // function updateRadioList(list,audioTags){
+    //   // Convert audioTags collection into an array
+    //   var audioArray = Array.from(audioTags);
       
-      //verifie si pour chqaue element de audioTags.src si il est dans la liste list et si oui affiche la transcriptionhtml
-      audioArray.forEach(function(element){
-        list.forEach(function(element2){
-          if (element.src === element2.audioUrl && !element.classList.contains("whispered")){ 
-            addTranscriptionToHtml(element,element2.transcription);
-          }
-          else if (element.src === element2.audioUrl && element.classList.contains("whispered")){ //if whisperred erase the existing <p> tag
-            element.classList.remove("whispered");
-            var pTag = element.parentElement.parentElement.querySelector("p");
-            pTag.remove();
-            addTranscriptionToHtml(element,element2.transcription);
-          }
-          //if an element of list does not exist in audioTags.src then remove it from the list
-          else if (!audioArray.some(x => x.src === element2.audioUrl)){ //some returns true if at least one element of the array matches the condition  
-            list.splice(list.findIndex(x => x.audioUrl === element2.audioUrl),1);
-          }
+    //   //verifie si pour chqaue element de audioTags.src si il est dans la liste list et si oui affiche la transcriptionhtml
+    //   audioArray.forEach(function(element){
+    //     list.forEach(function(element2){
+    //       if (element.src === element2.audioUrl && !element.classList.contains("whispered")){ 
+    //         addTranscriptionToHtml(element,element2.transcription);
+    //       }
+    //       else if (element.src === element2.audioUrl && element.classList.contains("whispered")){ //if whisperred erase the existing <p> tag
+    //         element.classList.remove("whispered");
+    //         var pTag = element.parentElement.parentElement.querySelector("p");
+    //         pTag.remove();
+    //         addTranscriptionToHtml(element,element2.transcription);
+    //       }
+    //       //if an element of list does not exist in audioTags.src then remove it from the list
+    //       else if (!audioArray.some(x => x.src === element2.audioUrl)){ //some returns true if at least one element of the array matches the condition  
+    //         list.splice(list.findIndex(x => x.audioUrl === element2.audioUrl),1);
+    //       }
 
-        });
-      });
-    }
+    //     });
+    //   });
+    // }
 
 
 
@@ -89,7 +89,7 @@
         isRunning = true;
         //console.log("azertyuiopqsdfghjklmwxcvbn,azertyuiopmlkgfdsqwxcvbn,");
         var audioTags = document.getElementsByTagName("audio");  //get all the audio tags
-        updateLastFive(audioTags);
+        // updateLastFive(audioTags);
         
         if (audioTags.length === 0) { //if there is no audio tags, stop the function
             isRunning = false;
@@ -108,25 +108,21 @@
                 audioTags = newRadios;
                 i = 0;
                 audioTag = audioTags[i];
-                updateLastFive(audioTags);
+                // updateLastFive(audioTags);
                 console.log("New radio found");
-                updateRadioList(list,audioTags);
-                console.log("list",list);
+                // updateRadioList(list,audioTags);
+                // console.log("list",list);
             }
-            
 
-            //check if the radio is not already in the list then process it
             if (!audioTag.classList.contains("whispered")) {
                 console.log(audioTag,i);
                 await transcribe(audioTag);
-                
-                
             }
         }
         isRunning = false;
     }
 
-setInterval(checkNewRadio, 5000);
+setInterval(checkNewRadio, 100);
 
 async function transcribe(audio) {  //transcribe the audio
     var audioUrl = audio.src;
@@ -151,7 +147,7 @@ async function transcribe(audio) {  //transcribe the audio
       addTranscriptionToHtml(audio,data.transcription);
 
       //dict with key=source of the audio and value=transcription
-      addNewRadio(list,{audioUrl:audio.src,transcription:data.transcription},146);
+      // addNewRadio(list,{audioUrl:audio.src,transcription:data.transcription},146);
 
  
       return data.transcription;
