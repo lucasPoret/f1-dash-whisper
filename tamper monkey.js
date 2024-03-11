@@ -116,10 +116,8 @@
                 audioTags = newRadios;
                 i = 0;
                 audioTag = audioTags[i];
-                // updateLastFive(audioTags);
                 console.log("New radio found");
-                // updateRadioList(list,audioTags);
-                // console.log("list",list);
+                updateRadioList(audioTags);
             }
 
             if (!audioTag.classList.contains("whispered")) {
@@ -153,10 +151,6 @@ async function transcribe(audio) {  //transcribe the audio
 
       //add the transcription to the html
       addTranscriptionToHtml(audio,data.transcription);
-
-      //dict with key=source of the audio and value=transcription
-      // addNewRadio(list,{audioUrl:audio.src,transcription:data.transcription},146);
-
  
       return data.transcription;
     } catch (error) {
