@@ -21,26 +21,6 @@
         elem[0].remove();
     }, 500);
 
-    // function updateLastFive(audioTags){
-    //   // Convert audioTags collection into an array
-    //   var audioArray = Array.from(audioTags);
-    //   //take five last items of the list
-    //   var last = audioArray.slice(-5);
-    //   //add the src of the audio tag to the list last_five
-    //   last.forEach(function(element){
-    //     last_five.push(element.src);
-    //   }); 
-    // }
-
-    // function addNewRadio(list,element,size){
-    //     if (list.length === size){
-    //       //récupère le premier élément de la liste last_five et le supprime de la liste list 
-    //       var last = last_five.shift();
-    //       //find where the key in the list is equal to last and remove it
-    //       list.splice(list.findIndex(x => x.audioUrl === last),1);
-    //     }
-    //     list.push(element);
-    // }
 
     function addTranscriptionToHtml(audio,Transcription){
       audio.classList.add("whispered");
@@ -52,33 +32,61 @@
       pTag.style.color = pTag.parentElement.querySelector("div p").style.color;
     }
 
-    // function updateRadioList(list,audioTags){
-    //   // Convert audioTags collection into an array
-    //   var audioArray = Array.from(audioTags);
-      
-    //   //verifie si pour chqaue element de audioTags.src si il est dans la liste list et si oui affiche la transcriptionhtml
-    //   audioArray.forEach(function(element){
-    //     list.forEach(function(element2){
-    //       if (element.src === element2.audioUrl && !element.classList.contains("whispered")){ 
-    //         addTranscriptionToHtml(element,element2.transcription);
-    //       }
-    //       else if (element.src === element2.audioUrl && element.classList.contains("whispered")){ //if whisperred erase the existing <p> tag
-    //         element.classList.remove("whispered");
-    //         var pTag = element.parentElement.parentElement.querySelector("p");
-    //         pTag.remove();
-    //         addTranscriptionToHtml(element,element2.transcription);
-    //       }
-    //       //if an element of list does not exist in audioTags.src then remove it from the list
-    //       else if (!audioArray.some(x => x.src === element2.audioUrl)){ //some returns true if at least one element of the array matches the condition  
-    //         list.splice(list.findIndex(x => x.audioUrl === element2.audioUrl),1);
-    //       }
+    function updateRadioList(audioTags){
+      var list = [];
+      var audioArray = Array.from(audioTags);
+      //ger list from server and update the list
+      fetch('http://localhost:5000/getList', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        list = data;
+      });
 
-    //     });
-    //   });
-    // }
+      //verifie si pour chqaue element de audioTags.src si il est dans la liste list et si oui affiche la transcriptionhtml
+      audioArray.forEach(function(element){
+        list.forEach(function(element2){
+          if (element.src === element2.audioUrl && !element.classList.contains("whispered")){ 
+            addTranscriptionToHtml(element,element2.transcription);
+          }
+          else if (element.src === element2.audioUrl && element.classList.contains("whispered")){ //if whisperred erase the existing <p> tag
+            element.classList.remove("whispered");
+            var pTag = element.parentElement.parentElement.querySelector("p");
+            pTag.remove();
+            addTranscriptionToHtml(element,element2.transcription);
+          }
+          //if an element of list does not exist in audioTags.src then remove it from the list of the server with fetch removeItem
+          else if (!audioArray.some(e => e.src === element2.audioUrl)){ 
+            fetch('http://localhost:5000/removeItem', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ audioUrl: element2.audioUrl }),
+            });
+            //remove the element from the list
+            list.splice(list.findIndex(e => e.audioUrl === element2.audioUrl),1);
+          }
+          
 
+        });
+      });
 
+    }
+    
 
+    function resetServerList(){
+      fetch('http://localhost:5000/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    }
 
     async function checkNewRadio(){
         //console.log("check");
