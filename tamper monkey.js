@@ -36,7 +36,7 @@
       var list = [];
       var audioArray = Array.from(audioTags);
       //ger list from server and update the list
-      fetch('http://localhost:5000/getList', {
+      fetch('http://127.0.0.1:5000/getList', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@
           }
           //if an element of list does not exist in audioTags.src then remove it from the list of the server with fetch removeItem
           else if (!audioArray.some(e => e.src === element2.audioUrl)){ 
-            fetch('http://localhost:5000/removeItem', {
+            fetch('http://127.0.0.1:5000/removeItem', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -80,7 +80,7 @@
     
 
     function resetServerList(){
-      fetch('http://localhost:5000/reset', {
+      fetch('http://127.0.0.1:5000/reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ setInterval(checkNewRadio, 100);
 async function transcribe(audio) {  //transcribe the audio
     var audioUrl = audio.src;
     try {
-      const response = await fetch('http://localhost:5000/transcribe', {
+      const response = await fetch('http://127.0.0.1:5000/transcribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
