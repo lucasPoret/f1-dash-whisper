@@ -4,7 +4,7 @@
 // @version      1.1.1
 // @description  try to take over the world!
 // @author       You
-// @match        https://f1-dash.vercel.app/
+// @match        https://f1-dash.com/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=vercel.app
 // @grant        none
 // ==/UserScript==
@@ -122,7 +122,7 @@
 
             if (!audioTag.classList.contains("whispered")) {
                 console.log(audioTag,i);
-                await transcribe(audioTag);
+                await transcribe(audioTag,0);
             }
         }
         isRunning = false;
@@ -130,7 +130,7 @@
 
 setInterval(checkNewRadio, 100);
 
-async function transcribe(audio) {  //transcribe the audio
+async function transcribe(audio,retry) {  //transcribe the audio
     var audioUrl = audio.src;
     try {
       const response = await fetch('http://127.0.0.1:5000/transcribe', {
@@ -151,21 +151,21 @@ async function transcribe(audio) {  //transcribe the audio
 
       if(data.transcription === "trasncription failed"){// retry the transcription
         console.log("retrying");
-        var retryCount = 0;
-        while(retryCount < 3){
-          retryCount++;
-          var transcription = await transcribe(audio);
-          if(transcription !== "trasncription failed"){
-        return transcription;
-          }
+        if (retry < 5){
+          await transcribe(audio,retry+1);
+        }
+        else{
+          console.log("transcription failed");
+          return;
         }
       }
 
-
-      //add the transcription to the html
-      addTranscriptionToHtml(audio,data.transcription);
- 
-      return data.transcription;
+      else{
+        //add the transcription to the html
+        addTranscriptionToHtml(audio,data.transcription);
+  
+        return data.transcription;
+      }
     } catch (error) {
       console.error('Erreur lors de la transcription:', error);
     }

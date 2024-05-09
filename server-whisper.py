@@ -6,7 +6,7 @@ import torch
 
 
 app = Flask(__name__)
-CORS(app) # Active CORS pour toutes les origines
+CORS(app, origins=['https://f1-dash.com/'])
 print("Chargement du modèle...")
 # Vérifie si CUDA est disponible et configure PyTorch pour utiliser le GPU
 if torch.cuda.is_available():
