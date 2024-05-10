@@ -3,12 +3,14 @@ from flask_cors import CORS
 from transformers import pipeline
 import torch
 import time
+from threading import Lock
 
 
 
 
 app = Flask(__name__)
 CORS(app)
+lock = Lock()
 print("Chargement du modèle...")
 # Vérifie si CUDA est disponible et configure PyTorch pour utiliser le GPU
 if torch.cuda.is_available():
@@ -28,30 +30,32 @@ transcription_list = dict()
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
-    # Vérifie si le fichier fait partie de la requête
-    audio_url = request.json.get('audio')  # Obtient l'URL de l'audio depuis la requête
-    if not audio_url:
-        return "URL de l'audio manquant", 400
-    print(f"Transcription de l'audio à l'URL: {audio_url}")
+    with lock:
+        # Vérifie si le fichier fait partie de la requête
+        audio_url = request.json.get('audio')  # Obtient l'URL de l'audio depuis la requête
+        if not audio_url:
+            return "URL de l'audio manquant", 400
+        print(f"\nTranscription de l'audio à l'URL: {audio_url}\n")
 
-    if audio_url in transcription_list: 
-        return jsonify(transcription=transcription_list[audio_url])
-    
-    try:
-        start_time = time.time()
-        # Transcribe the audio file
-        result = model(audio_url)
-        transcription = result["text"]
-        transcription_list[audio_url] = transcription
-        end_time = time.time()
-        print(f"Temps de transcription: {end_time - start_time} secondes")
+        if audio_url in transcription_list: 
+            print(f"\nTranscription in list")
+            return jsonify(transcription=transcription_list[audio_url])
+        
+        try:
+            start_time = time.time()
+            # Transcribe the audio file
+            result = model(audio_url)
+            transcription = result["text"]
+            transcription_list[audio_url] = transcription
+            end_time = time.time()
+            print(f"\nTemps de transcription: {end_time - start_time} secondes")
 
-    except Exception as e:
-        transcription = "transcription failed"
-        print(f"Error occurred during transcription: {str(e)}")
+        except Exception as e:
+            transcription = "transcription failed"
+            print(f"Error occurred during transcription: {str(e)}")
 
-    print(f"Transcription: {transcription}")
-    return jsonify(transcription=transcription)
+        print(f"\nTranscription: {transcription}\n")
+        return jsonify(transcription=transcription)
 
 @app.route('/reset', methods=['POST'])
 def resetList():
@@ -76,4 +80,4 @@ def getList():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context='adhoc')
+    app.run(debug=False, ssl_context=('ca.pem','ca-key.pem'),threaded=True)
