@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import whisper
 import torch
+import time
 
 
 
@@ -37,10 +38,13 @@ def transcribe_audio():
     
    
     try:
+        start_time = time.time()
         # Transcrit le fichier audio    
         result = model.transcribe(audio_url, language="en")
         transcription = result["text"]
         transcription_list[audio_url] = transcription
+        end_time = time.time()
+        print(f"Temps d'exécution: {end_time - start_time} secondes")
 
     except:
         transcription = "trasncription failed"
