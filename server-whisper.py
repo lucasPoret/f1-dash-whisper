@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import whisper
+from transformers import pipeline
 import torch
+import time
 
 
 
@@ -17,7 +18,8 @@ else:
     print("CUDA n'est pas disponible. Modèle en cours de configuration pour utiliser le CPU.")
     device = torch.device("cpu")
 
-model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
+# model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
+model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device)
 print("Modèle chargé")
 
 #dict to store the transcription
@@ -35,15 +37,18 @@ def transcribe_audio():
     if audio_url in transcription_list: 
         return jsonify(transcription=transcription_list[audio_url])
     
-   
     try:
-        # Transcrit le fichier audio    
-        result = model.transcribe(audio_url, language="en")
+        start_time = time.time()
+        # Transcribe the audio file
+        result = model(audio_url)
         transcription = result["text"]
         transcription_list[audio_url] = transcription
+        end_time = time.time()
+        print(f"Temps de transcription: {end_time - start_time} secondes")
 
-    except:
-        transcription = "trasncription failed"
+    except Exception as e:
+        transcription = "transcription failed"
+        print(f"Error occurred during transcription: {str(e)}")
 
     print(f"Transcription: {transcription}")
     return jsonify(transcription=transcription)
