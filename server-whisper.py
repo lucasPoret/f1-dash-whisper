@@ -21,7 +21,7 @@ else:
     device = torch.device("cpu")
 
 # model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
-model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device)
+model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device, token="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")
 print("Modèle chargé")
 
 #dict to store the transcription
@@ -80,4 +80,4 @@ def getList():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, ssl_context=('ca.pem','ca-key.pem'),threaded=True)
+    app.run(debug=False, ssl_context=('certificate.crt','private.key'),threaded=True,port=5000)
