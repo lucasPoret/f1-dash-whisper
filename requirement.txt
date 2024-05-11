@@ -4,5 +4,3 @@ whisper
 pyTorch
 transformers
 torch
-time
-threading
