@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import pipeline
+import whisper
 import torch
 import time
 from threading import Lock
@@ -20,8 +20,7 @@ else:
     print("CUDA n'est pas disponible. Modèle en cours de configuration pour utiliser le CPU.")
     device = torch.device("cpu")
 
-# model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
-model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device, token="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")
+model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
 print("Modèle chargé")
 
 #dict to store the transcription
@@ -44,7 +43,7 @@ def transcribe_audio():
         try:
             start_time = time.time()
             # Transcribe the audio file
-            result = model(audio_url)
+            result = model.transcribe(audio_url, language="en")
             transcription = result["text"]
             transcription_list[audio_url] = transcription
             end_time = time.time()
