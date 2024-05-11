@@ -13,7 +13,7 @@ add radio transcription to [f1-dash.com](https://f1-dash.com/)
 
 So, in order to use it you must create a [huggingface](https://huggingface.co) account and create a token.
 
-(if you don't want to use transformers and distil-whisper go to [whisper branch](https://github.com/lucasPoret/f1-dash-whisper/tree/whisper))
+(if you don't want to use transformers and distil-whisper go to [whisper branch](https://github.com/lucasPoret/f1-dash-whisper/tree/whisper) but it's slower to transcribe)
 
 Once it's done, put your token in server-whisper.py
 ```python
