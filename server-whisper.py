@@ -21,7 +21,7 @@ else:
     device = torch.device("cpu")
 
 # model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
-model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device)
+model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device, token="YOUR HUGGING FACE TOKEN")
 print("Modèle chargé")
 
 #dict to store the transcription
