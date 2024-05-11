@@ -80,4 +80,4 @@ def getList():
 
 
 if __name__ == '__main__':
-    app.run(debug=False, ssl_context=('ca.pem','ca-key.pem'),threaded=True)
+    app.run(debug=False, ssl_context=('certificate.crt','private.key'),threaded=True,port=5000)

@@ -17,7 +17,6 @@
 
       setTimeout(function() {
           var elem = document.getElementsByTagName("footer");
-          console.log(elem[0]);
           elem[0].remove();
           // var audioTags = document.getElementsByTagName("audio");
           // updateRadioList(audioTags);
@@ -25,7 +24,6 @@
 
 
       async function addTranscriptionToHtml(audio,Transcription){
-        console.log("adding transcription to html ");
         audio.classList.add("whispered");
         var pTag = document.createElement("p");
         pTag.textContent = Transcription;
