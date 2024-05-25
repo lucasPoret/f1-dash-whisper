@@ -5,13 +5,11 @@ import torch
 import time
 from threading import Lock
 
-
-
-
 app = Flask(__name__)
 CORS(app)
 lock = Lock()
 print("Chargement du modèle...")
+
 # Vérifie si CUDA est disponible et configure PyTorch pour utiliser le GPU
 if torch.cuda.is_available():
     print("CUDA est disponible. Modèle en cours de configuration pour utiliser le GPU.")
@@ -20,18 +18,16 @@ else:
     print("CUDA n'est pas disponible. Modèle en cours de configuration pour utiliser le CPU.")
     device = torch.device("cpu")
 
-# model = whisper.load_model("medium.en").to(device) # ou "small", "medium", "large" selon les ressources disponibles
-model = pipeline("automatic-speech-recognition", model="distil-whisper/distil-medium.en", device=device, token="YOUR HUGGING FACE TOKEN")
-print("Modèle chargé")
+model_name = "distil-whisper/distil-small.en"  # Valeur par défaut
+model = pipeline("automatic-speech-recognition", model=model_name, device=device)
+print(f"Modèle {model_name} chargé")
 
-#dict to store the transcription
+# dict to store the transcription
 transcription_list = dict()
-
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
     with lock:
-        # Vérifie si le fichier fait partie de la requête
         audio_url = request.json.get('audio')  # Obtient l'URL de l'audio depuis la requête
         if not audio_url:
             return "URL de l'audio manquant", 400
@@ -43,7 +39,6 @@ def transcribe_audio():
         
         try:
             start_time = time.time()
-            # Transcribe the audio file
             result = model(audio_url)
             transcription = result["text"]
             transcription_list[audio_url] = transcription
@@ -60,9 +55,7 @@ def transcribe_audio():
 @app.route('/reset', methods=['POST'])
 def resetList():
     transcription_list.clear()
-    #return no content
     return '', 204
-
 
 @app.route('/removeItem', methods=['POST'])
 def removeItem():
@@ -77,7 +70,5 @@ def removeItem():
 def getList():
     return jsonify(transcription_list)
 
-
-
 if __name__ == '__main__':
-    app.run(debug=False, ssl_context=('certificate.crt','private.key'),threaded=True,port=5000)
+    app.run(host='0.0.0.0', debug=False, ssl_context=('/etc/ssl/certs/certificate.crt', '/etc/ssl/private/private.key'), threaded=True, port=5000)

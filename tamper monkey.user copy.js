@@ -12,17 +12,7 @@
   (function() {
       'use strict';
       var isRunning = false;
-      // var last_five=[];
-      // var list=[];
-
-      setTimeout(function() {
-          var elem = document.getElementsByTagName("footer");
-          elem[0].remove();
-          // var audioTags = document.getElementsByTagName("audio");
-          // updateRadioList(audioTags);
-      }, 500);
-
-
+ 
       async function addTranscriptionToHtml(audio,Transcription){
         audio.classList.add("whispered");
         var pTag = document.createElement("p");
